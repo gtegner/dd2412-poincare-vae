@@ -1,0 +1,12 @@
+.vscode/
+*.ipynb
+.ipynb_checkpoints
+saved_models
+.DS_Store
+saved_csv
+checkpoints
+INSTANCE_RESULTS/
+model_outputs/
+front_cover.png test.png wrapped_test.png
+data
+.idea/

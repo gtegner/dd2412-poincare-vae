@@ -1,0 +1,9 @@
+saved_csv
+saved_models
+data
+checkpoints
+*.ipynb
+model_outputs
+INSTANCE_RESULTS
+mnist_marginal
+MNIST_RESULTS
