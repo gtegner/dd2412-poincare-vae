@@ -1,5 +1,5 @@
 import torch
-from layers import HyperbolicVAE, VAELoss, vanillaVAELoss, VanillaVAE
+from layers import HyperbolicVAE, VanillaVAE
 from branching_process import BranchingLoaders
 from torchvision.datasets import MNIST
 from torchvision import transforms

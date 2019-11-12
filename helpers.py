@@ -19,24 +19,15 @@ def batch_dot_product(x, y):
 
     if len(x.shape) == 1 and len(y.shape) == 1:
         return torch.sum(x * y)
-    # if len(x.shape) == 2 and len(y.shape) == 2 and
     if x.shape == y.shape:
         return torch.sum(x * y, -1, keepdim=True)
 
     elif len(x.shape) == 1:
-        # print("xhape 1")
-        # print("xshape", x.shape)
-        # print("yshape", y.shape)
         return torch.sum(x * y, -1, keepdim=True)
 
     out = (x @ y.T).unsqueeze(-1)
-    # print("OUT")
-    # print("xshape", x.shape)
-    # print("yshape", y.shape)
 
     return out
-
-    # return torch.bmm(x.view(n, 1, d), y.view(n, d, 1)).squeeze(-1)
 
 
 def norm_(x, p=2, keepdim=True):
@@ -45,75 +36,19 @@ def norm_(x, p=2, keepdim=True):
 
 def mobius_add(x, y, c):
     return pmath.mobius_add(x, y, c=c)
-    # return _mobius_add_(x, y, c)
-
-
-def _mobius_add_(x, y, c):
-    """[summary]
-
-    Arguments:
-        x N x D
-        y M x D
-        c float
-
-    Returns:
-        [type] -- [description]
-    """
-    norm_x_sq = norm_(x, p=2)**2
-    norm_y_sq = norm_(y, p=2)**2
-
-    # print("norm x")
-    # print(norm_x_sq.shape)
-    # print("norm y")
-    # print(norm_y_sq.shape)
-
-    dot = batch_dot_product(x, y)  # N x M x 1
-    print("\n")
-    print("x", x.shape)
-    print("y", y.shape)
-
-    if x.shape == y.shape:
-        first_num = (1 + 2*c*dot + c*norm_y_sq)*x
-        second_num = ((1-c * norm_x_sq) * y)
-    else:
-        # print("ELSE")
-        # print(x.shape)
-        # print(y.shape)
-        first_num = (1 + 2*c*dot + c*norm_y_sq)*x
-        second_num = ((1-c * norm_x_sq) * y.T).T
-        a = dot
-        b = x
-        print("a", a.shape)
-        print("b", b.shape)
-
-    print("first num", first_num.shape)
-    print("second num", second_num.shape)
-
-    num = first_num + second_num
-    # print("num shape", num.shape)
-    den = 1 + 2*c*dot + (c**2)*norm_x_sq*norm_y_sq
-    # print("den shape", den.shape)
-
-    return num / den.clamp_min(MIN_NORM)
 
 
 def lambda_x(x, c, keepdim=False):
     return pmath._lambda_x(x, c, keepdim=keepdim)
-    # norm_x = norm_(x, p=2)**2
-    # return 1.0 / (1 - c * norm_x).clamp_min(MIN_NORM)
 
 
 def dist_p_cosh(x, y, c):
     sqrt_c = np.sqrt(c)
     norm_x = norm_(x, 2)**2
     norm_y = norm_(y, 2)**2
-    # print("in dist")
-    # print("norm_x", norm_x)
-    # print("norm_y", norm_y)
 
     numerator = 2*c*norm_(x-y, 2)**2
     denominator = (1 - c * norm_x)*(1 - c * norm_y)
-    # print("denominator", denominator)
 
     return 1.0 / sqrt_c * inv_cosh(1.0 + numerator / denominator.clamp_min(MIN_NORM))
 
@@ -127,22 +62,10 @@ def dist_p(x, y, c, keepdim=False, dim=-1):
 def exp_map(x, v, c):
     v = v + EPS
     return pmath.expmap(x, v, c=c, dim=-1)
-
-    lx = lambda_x(x, c)
-    norm_v = norm_(v).clamp_min(MIN_NORM)
-    sqrt_c = np.sqrt(c)
-
-    t = torch.tanh(sqrt_c * 0.5 * lx * norm_v)
-    v_adj = 1/(sqrt_c * norm_v) * v
-
-    a = pmath.expmap(x, v, c=c, dim=-1)
-    return project_hyp_vecs(a, c)
     # return mobius_add(x, t * v_adj, c=c)
 
 
 def exp_0_map(v, c, dim=-1):
-    # #norm_v = norm_(v, p=2).clamp_min(MIN_NORM)
-    # return torch.tanh(np.sqrt(c) * norm_v) * v / (np.sqrt(c) * norm_v)
     a = pmath.expmap0(v, c=c, dim=dim)
     return project_hyp_vecs(a, c)
 
@@ -172,29 +95,11 @@ def log_map(x, y, c, dim=-1):
     Returns:
         [type] -- [description]
     """
-    # lx = lambda_x(x, c)
-    # sqrt_c = np.sqrt(c)
-    # x_add_y = mobius_add(-x, y, c)
-    # norm_x_add_y = norm_(x_add_y).clamp_min(MIN_NORM)
-
-    # return 2.0 * 1/(sqrt_c * lx) * inv_tanh(sqrt_c * norm_x_add_y) * x_add_y / norm_x_add_y
-
     return pmath.logmap(x, y, c=c, dim=dim)
 
 
 def hyperplane_dist(x, a, b, c, keepdim=False):
     return pmath.dist2plane(x, b, a, keepdim=keepdim, c=c)
-    # sqrt_c = np.sqrt(c)
-    # xb = mobius_add(-b, x, c)
-
-    # dot = batch_dot_product(xb, a)
-    # numerator = 2 * sqrt_c * torch.abs(dot)
-    # norm_xb = norm_(xb, 2)**2
-
-    # norm_a = norm_(a).clampmin(MIN_NORM)
-    # denominator = (1 - c * norm_xb) * norm_a
-
-    # return 1.0 / sqrt_c * inv_sinh(numerator / denominator.clamp_min(MIN_NORM))
 
 
 def sample_from_hypersphere(n, dim, batch_size=None):

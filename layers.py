@@ -66,7 +66,7 @@ class EfficientHyperbolicLinear(nn.Module):
             inner(exp_b, log_b, parallel_a, c=self.c, keepdim=True))
 
         norm_a = lambda_x(self.b, self.c) * \
-                 norm_(self.a).squeeze(-1)
+            norm_(self.a).squeeze(-1)
         hp_dist = hyperplane_dist(
             x, self.a, self.b, self.c).unsqueeze(-1).transpose(0, 1)
         norm_a = norm_a.expand_as(sign_dot)
@@ -272,7 +272,3 @@ class VanillaVAE(nn.Module):
             torch.sum(1 + 2 * torch.log(sigma) - mu**2 - sigma**2)
 
         return -likelihood.sum(), neg_kl_div
-
-
-
-

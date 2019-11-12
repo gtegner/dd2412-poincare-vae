@@ -281,7 +281,7 @@ class RiemannianNormal:
         if dim == 2:
             return 1 / torch.erf(c.sqrt() * sigma / np.sqrt(2)) * .5 * \
                 (2 * torch.erf(c.sqrt() * sigma / np.sqrt(2)) + torch.erf((r - c.sqrt() * sigma**2) / math.sqrt(2) / sigma) -
-                 torch.erf((torch.sqrt(c) * sigma**2) + r) / np.sqrt(2) / sigma)
+                 torch.erf((torch.sqrt(c) * sigma**2 + r) / np.sqrt(2) / sigma))
 
         dim = __to_tensor__(dim)
         c = __to_tensor__(c)
@@ -308,7 +308,6 @@ class RiemannianNormal:
         output[output != output] = 0
         assert not torch.isnan(output).any()
         return output.double()
-
 
     @staticmethod
     def cdf_log_inner_sum(r, sigma, d, k, c):
@@ -382,4 +381,3 @@ class ImplicitReparametrization(torch.autograd.Function):
 def implicit_reparam(r, sigma, c, dim):
     F = RiemannianNormal.__cdf_r__
     return ImplicitReparametrization.apply(r, sigma, c, dim, F)
-
